@@ -32,10 +32,6 @@ void DDZGame::run() {
 		players[i % 3]->draw(deck[i]);
 
 	// 随机选取地主，发给地主最后三张牌
-	// * 你可以实现自己的叫地主流程，
-	// * 你需要在DDZPlayer类里面加入相应的变量（存储其他玩家叫地主的情况）
-	// * 和函数bool DDZPlayer::bid()（返回自己是否要叫地主）。
-	// * 请参阅play()函数和叫地主的规则设计这个流程。
 	int landlordPos = my_random(3);
 	for (int i = 54 - 3; i < 54; ++i)
 		players[landlordPos]->draw(deck[i]);

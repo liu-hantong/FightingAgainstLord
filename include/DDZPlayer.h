@@ -13,7 +13,7 @@ protected:
 	int prePos;  //上一个出牌的人位置编号，-1表示还没有人出过牌
 	vector<Card> prePlay;  // 上一个出牌的人出了什么牌？
 
-	bool legal(vector<Card> cards);  // 判断当前打出cards是否合法
+	bool legal(vector<Card> &cards);  // 判断当前打出cards是否合法
 	void substractFromHand(vector<Card> cards);  // 从当前手牌中删去cards中的牌
 public:
 	DDZPlayer(string name);  // 构造函数，初始化玩家名

@@ -27,9 +27,69 @@ string DDZPlayer::getName() {
 	return name;
 }
 
-bool DDZPlayer::legal(vector<Card> cards) {
+bool DDZPlayer::legal(vector<Card> &cards) {
 	// 通过上家打出的牌prePlay和手牌hand判断cards作为打出牌是否合法
 	// TODO：（第二题）请补全这个函数
+	//首先判断hand是不是包含cards
+	if (cards[0] == "YAO")
+	{
+		//要不起这个牌
+		cards.clear();
+		return true;
+	}
+	vector<Card> handCopy = hand;//创建一个手牌的Copy，用于检测cards是否合法
+	for (auto i = cards.begin(); i != cards.end(); ++i)
+	{
+		auto CardPosition = find(handCopy.begin(), handCopy.end(), *i);
+		if (CardPosition != handCopy.end())
+			//找到了cards之一，删除并继续寻找
+			handCopy.erase(CardPosition, CardPosition + 1);
+		else
+			return false;
+	}
+	//其次判断prePlay和hand是不是同一种类型的牌
+	vector<string> prePlay_String;
+	vector<string> cards_String;
+	for (auto i = prePlay.begin(); i != prePlay.end(); ++i)
+		prePlay_String.push_back(*i);
+	for (auto i = cards.begin(); i != cards.end(); ++i)
+		cards_String.push_back(*i);
+	PokerAnalysis preplayAnalysis(prePlay_String, prePlay_String.size());
+	PokerAnalysis cardsAnalysis(cards_String, cards_String.size());
+	if (prePos == position || prePos == -1)
+	//出任意牌即可，但是要保证出的牌是符合斗地主规则的
+	{
+		PokerAnalysis New(cards_String, cards_String.size());
+		if(New.CardsNature == 0)
+			return false;
+		return true;
+	}
+	if (prePlay.size() != cards.size())
+		return false;
+	if (preplayAnalysis.CardsNature != cardsAnalysis.CardsNature)
+		return false;
+	//两种牌牌型相同，判断是否cards比prePlay大！
+	int nature = preplayAnalysis.CardsNature;
+	int Bigger = 0;
+	switch (nature)
+	{
+	case 1: Bigger = cards[0] > prePlay[0]; break;
+	case 2: Bigger = cards[0] > prePlay[0]; break;
+	case 3: Bigger = cards[0] > prePlay[0]; break;
+	case 4: Bigger = cards[1] > prePlay[1]; break;
+	case 5: Bigger = cards[2] > prePlay[2]; break;
+	case 6: Bigger = cards[0] > prePlay[0]; break;
+	case 7: Bigger = cards[0] > prePlay[0]; break;
+	case 8: Bigger = cards[2] > prePlay[2]; break;
+	case 9: Bigger = cards[0] > prePlay[0]; break;
+	case 10: Bigger = cards[1] > prePlay[1]; break;
+	case 11: Bigger = cards[2] > prePlay[2]; break;
+	case 12: Bigger = cards[0] > prePlay[0]; break;
+	default:
+		break;
+	}
+	if (!Bigger)
+		return false;
 	return true;
 }
 
@@ -72,8 +132,6 @@ void DDZPlayer::setPosition(int pos) {
 
 void DDZPlayer::observed(int pos, vector<Card> cards) {
 	// 将上一个出牌的人和出了什么牌记录下来。
-	// 如果你想记录更多的信息供你的策略使用，可以改动这个函数。
-	// 例如，记录已经有哪些牌被打出（记牌器），以推测场上是否可能还存在炸弹。
 	if (cards.size() == 0) return;
 	prePos = pos;
 	prePlay = cards;
@@ -81,9 +139,6 @@ void DDZPlayer::observed(int pos, vector<Card> cards) {
 
 vector<Card> DDZPlayer::play() {
 	// 轮到你出牌，返回打出的牌。
-	// TODO：（第一题）请完善这个函数
-	// 如果你使用不同的数据结构进行处理，你可以现将hand变量转换为你使用的结构，
-	// 处理过后再将打出的牌转换为vector<Card>，存入card变量。
 	vector<Card> cards;
 	//将vector<Card>转化为vector<string>以方便调用原始数据结构
 	vector<string> hand_String;
@@ -95,7 +150,6 @@ vector<Card> DDZPlayer::play() {
 		MyOut = OriginOut(hand_String);
 	}
 	else {
-		// 位于prePos的玩家打出了prePlay的牌，你需要出什么牌？
 		//将preplay转化为vector<string>
 		vector<string> prePlay_String;
 		for (auto i = prePlay.begin(); i != prePlay.end(); ++i)
@@ -111,12 +165,6 @@ vector<Card> DDZPlayer::play() {
 		for (auto i = MyOut.begin(); i != MyOut.end(); ++i)
 			cards.push_back(*i);
 	}
-	// 你需要保证打出的牌是合法的
-	// assert函数在参数为false的时候会使程序报错退出。
-	// 这样做的好处是，如果你有没注意到的错误导致程序在此报错退出，
-	// 你就知道是在出牌的合法性上出了问题，而不用排查程序的其他部分。
-	// assert(legal(cards));
-
 	// 将打出的牌从手牌中删去
 	substractFromHand(cards);
 	return cards;
